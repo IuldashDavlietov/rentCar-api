@@ -1,0 +1,160 @@
+@baseUrl = http://127.0.0.1:8000
+@userToken = Bearer {{login.response.body.bearer.access}}
+@userRefresh = {{login.response.body.bearer.refresh}}
+
+# @name home
+GET {{baseUrl}}
+Authorization: Bearer 
+#####################
+### AUTH
+#####################
+
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "pass-123"
+}
+
+###
+
+# @name refresh
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+    "refresh" : "{{userRefresh}}"
+}
+
+###
+
+# @name logout
+POST {{baseUrl}}/auth/logout
+Authorization: Token 50be4f594d54fde8affebefeb7fad05a033bb955cbc989c57b3bc0cf26a2be00
+
+
+
+#####################
+### DEPARTMENT
+#####################
+
+# @name user_list
+GET {{baseUrl}}/users
+Authorization: {{userToken}}
+
+###
+
+# @name user_read
+GET {{baseUrl}}/users
+Authorization: {{userToken}}
+
+###
+
+# @name user_create
+POST {{baseUrl}}/users
+Content-Type: application/json
+Authorization: {{userToken}}
+
+{
+    "username":"test4",
+    "password":"Pass@123",
+    "email":"test4@site.com"
+
+}
+
+###
+
+# @name user_update
+PUT {{baseUrl}}/users
+Content-Type: application/json
+
+{
+    "name":"userartment 1 UPDATED"
+}
+
+###
+
+# @name user_delete
+DELETE {{baseUrl}}/users
+
+#####################
+### Cars
+#####################
+
+# @name per_list
+GET {{baseUrl}}/cars
+Authorization: {{userToken}}
+
+###
+
+# @name per_read
+GET {{baseUrl}}/cars
+Authorization: {{userToken}}
+
+###
+
+# @name per_create
+POST {{baseUrl}}/cars
+Content-Type: application/json
+
+{
+    
+}
+
+###
+
+# @name per_update
+PUT {{baseUrl}}/cars
+Content-Type: application/json
+
+{
+    
+}
+
+###
+
+# @name per_delete
+DELETE {{baseUrl}}/cars
+
+#####################
+### Reservations
+#####################
+
+
+# @name topping_list
+GET {{baseUrl}}/reservations
+Authorization: {{userToken}}
+
+###
+
+# @name topping_read
+GET {{baseUrl}}/reservations/
+
+###
+
+# @name topping_create
+POST {{baseUrl}}/reservations
+Content-Type: application/json
+Authorization: {{userToken}}
+
+{
+    "name":"topping-3"
+}
+
+###
+
+# @name topping_update
+PUT {{baseUrl}}/reservations/6af18bbdfdc98109e3f455d1
+Content-Type: application/json
+
+{
+    "isActive": true
+}
+
+###
+
+# @name topping_delete
+DELETE {{baseUrl}}/reservations/6af18bbdfdc98109e3f455d1
+
