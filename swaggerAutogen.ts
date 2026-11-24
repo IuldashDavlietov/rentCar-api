@@ -4,7 +4,7 @@
 import dotenv from "dotenv";
 import swaggerAutogen from "swagger-autogen";
 import packageJson from "./package.json";
-import User from "./src/models/user";
+import User from "./src/models/user.model";
 
 dotenv.config({ quiet: true });
 

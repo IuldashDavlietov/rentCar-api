@@ -1,6 +1,3 @@
-/* -------------------------------------------------------
-    | FULLSTACK TEAM | NODEJS / EXPRESS |
-------------------------------------------------------- */
 // sendMail(to, subject, message)
 
 import nodemailer from "nodemailer";

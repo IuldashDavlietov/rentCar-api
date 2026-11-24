@@ -1,11 +1,11 @@
 import express from "express";
 import { env } from "./src/configs/env";
 import { dbConnection } from "./src/configs/dbConnection";
-import authentication from "./src/middlewares/authentication";
-import errorHandler from "./src/middlewares/errorHandler";
-import logger from "./src/middlewares/logger";
-import queryHandler from "./src/middlewares/queryHandler";
-import router from "./src/routes/index";
+import authentication from "./src/middlewares/authentication.middleware";
+import errorHandler from "./src/middlewares/errorHandler.middleware";
+import logger from "./src/middlewares/logger.middleware";
+import queryHandler from "./src/middlewares/queryHandler.middleware";
+import router from "./src/routes/index.route";
 // import sync from "./src/helpers/sync";
 
 const app = express();

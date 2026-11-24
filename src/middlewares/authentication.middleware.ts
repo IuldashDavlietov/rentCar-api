@@ -1,7 +1,3 @@
-/* -------------------------------------------------------
-    | FULLSTACK TEAM | NODEJS / EXPRESS |
-------------------------------------------------------- */
-
 import type { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { env } from "../configs/env";
@@ -34,7 +30,6 @@ const authentication: RequestHandler = (req, res, next) => {
       throw new CustomError("JWT Error : " + message, 401);
     }
   }
-
   next();
 };
 

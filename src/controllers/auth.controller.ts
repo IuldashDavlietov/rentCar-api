@@ -4,8 +4,8 @@ import type { QueryFilter } from "mongoose";
 import { env } from "../configs/env";
 import CustomError from "../helpers/customError";
 import passwordValidation from "../helpers/passwordValidation";
-import User from "../models/user";
-import type { IUser, UserBody, UserDocument } from "../models/user";
+import User from "../models/user.model";
+import type { IUser, UserBody, UserDocument } from "../models/user.model";
 import type {
   AccessData,
   DataResponse,
@@ -48,7 +48,6 @@ const login: LoginHandler = async (req, res) => {
           }
       }
   */
-
   const { username, email, password } = req.body;
 
   // Types are gone at runtime, so we check what the client really sent.
@@ -93,10 +92,8 @@ const register: RegisterHandler = async (req, res) => {
       }
     }
   */
-
   passwordValidation(req.body.password);
   const data = await User.create(req.body);
-
   res.status(201).send({
     error: false,
     data,

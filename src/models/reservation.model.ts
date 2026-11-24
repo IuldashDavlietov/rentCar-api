@@ -71,7 +71,6 @@ const ReservationSchema = new mongoose.Schema<IReservation>(
     amount: {
       type: Number,
       required: true,
-      default: 1
     },
 
     creatorId: {
@@ -85,7 +84,6 @@ const ReservationSchema = new mongoose.Schema<IReservation>(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-      immutable: true
     },
   },{
     collection: "reservations",

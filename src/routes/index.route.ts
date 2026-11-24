@@ -1,9 +1,9 @@
 import { Router } from "express";
-import authRouter from "./auth";
-import userRouter from "./user";
-import carRouter from "./car";
-import reservationRouter from "./reservation";
-import documentRouter from "./document";
+import authRouter from "./auth.route";
+import userRouter from "./user.route";
+import carRouter from "./car.route";
+import reservationRouter from "./reservation.route";
+import documentRouter from "./document.route";
 
 const router = Router();
 // ROUTER INDEX:

@@ -1,7 +1,3 @@
-/* -------------------------------------------------------
-    | FULLSTACK TEAM | NODEJS / EXPRESS |
-------------------------------------------------------- */
-
 // dateToLocaleString(date:Date):
 
 export default function (dateData: Date): string {

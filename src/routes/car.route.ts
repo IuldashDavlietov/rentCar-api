@@ -1,5 +1,5 @@
 import { Router } from "express";
-import car from '../controllers/car'
+import car from '../controllers/car.controller'
 
 
 const router = Router();

@@ -1,6 +1,3 @@
-/* -------------------------------------------------------
-    | FULLSTACK TEAM | NODEJS / EXPRESS |
-------------------------------------------------------- */
 // passwordEncrypt(password:string):
 
 import { pbkdf2Sync } from "node:crypto";

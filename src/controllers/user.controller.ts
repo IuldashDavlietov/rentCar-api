@@ -1,17 +1,12 @@
-/* -------------------------------------------------------
-    | FULLSTACK TEAM | NODEJS / EXPRESS |
-------------------------------------------------------- */
 import type { RequestHandler } from "express";
-import type { QueryFilter } from "mongoose";
-import type { IUser, UserBody, UserDocument } from "../models/user";
+import type { IUser, UserBody, UserDocument } from "../models/user.model";
 import type { DataListResponse, DataResponse, DeleteResponse, IdParams } from "../types/api";
-import User from "../models/user";
+import User from "../models/user.model";
 import passwordValidation from "../helpers/passwordValidation";
 
 // User Controller:
 
 type ListHandler = RequestHandler<{}, DataListResponse<UserDocument>>;
-
 const list: ListHandler = async (req, res) => {
   /*
       #swagger.tags = ["Users"]
@@ -27,7 +22,6 @@ const list: ListHandler = async (req, res) => {
     */
 
   const data = await res.getModelList<IUser>(User);
-
   res.status(200).send({
     error: false,
     details: await res.getModelListDetails<IUser>(User),
@@ -36,7 +30,6 @@ const list: ListHandler = async (req, res) => {
 };
 
 type ReadHandler = RequestHandler<IdParams, DataResponse<UserDocument | null>>;
-
 const read: ReadHandler = async (req, res) => {
   /*
       #swagger.tags = ["Users"]
@@ -44,15 +37,29 @@ const read: ReadHandler = async (req, res) => {
     */
 
   const data = await User.findOne({ _id: req.params.id });
-
   res.status(200).send({
     error: false,
     data,
   });
 };
 
-type UpdateHandler = RequestHandler<IdParams, DataResponse<UserDocument | null>, Partial<UserBody>>;
+type CreateHandler = RequestHandler<{}, DataResponse<UserDocument>, UserBody>;
+const create: CreateHandler = async (req, res) => {
+  /*
+    #swagger.tags = ["Users"]
+    #swagger.summary = "Create User"
+  */
 
+  passwordValidation(req.body.password);
+  const data = await User.create(req.body);
+
+  res.status(201).send({
+    error: false,
+    data,
+  });
+};
+
+type UpdateHandler = RequestHandler<IdParams, DataResponse<UserDocument | null>, Partial<UserBody>>;
 const update: UpdateHandler = async (req, res) => {
   /*
       #swagger.tags = ["Users"]
@@ -71,10 +78,28 @@ const update: UpdateHandler = async (req, res) => {
       }
     */
 
+  const allowedKeys: (keyof UserBody)[] =
+    req.user?.isActive && req.user.isAdmin
+      ? ["username", "email", "password", "isActive", "isStaff", "isAdmin"]
+      : ["username", "email", "password"];
+
+  const isAllowed = Object.keys(req.body).every((key) =>
+    allowedKeys.includes(key as keyof UserBody),
+  );
+
+  if (!isAllowed) {
+    res.errorStatusCode = 403;
+    throw new Error("AuthorizationError: You do not have permission to update these fields.");
+  }
+
+  if (req.body.password !== undefined) {
+    passwordValidation(req.body.password);
+  }
 
   const data = await User.findByIdAndUpdate(req.params.id, req.body, {
     runValidators: true,
     new: true,
+    context: "query",
   });
 
   res.status(202).send({
@@ -84,7 +109,6 @@ const update: UpdateHandler = async (req, res) => {
 };
 
 type RemoveHandler = RequestHandler<IdParams, DeleteResponse>;
-
 const remove: RemoveHandler = async (req, res) => {
   /*
         #swagger.tags = ["Users"]
@@ -99,22 +123,6 @@ const remove: RemoveHandler = async (req, res) => {
   });
 };
 
-type CreateHandler = RequestHandler<{}, DataResponse<UserDocument>, UserBody>;
 
-// The route uses user.create, but the JavaScript controller doesn't have it.
-const create: CreateHandler = async (req, res) => {
-  /*
-    #swagger.tags = ["Users"]
-    #swagger.summary = "Create User"
-  */
-
-  passwordValidation(req.body.password);
-  const data = await User.create(req.body);
-
-  res.status(201).send({
-    error: false,
-    data,
-  });
-};
 
 export default { list, create, read, update, remove };

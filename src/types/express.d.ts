@@ -1,5 +1,5 @@
 import type { HydratedDocument, Model, QueryFilter } from "mongoose";
-import type { UserDocument } from "../models/user";
+import type { UserDocument } from "../models/user.model";
 import type { AccessData, ListDetails, ModelPopulate } from "./api";
 
 // Teach TypeScript about what our middlewares add to req and res.

@@ -1,11 +1,8 @@
-/* -------------------------------------------------------
-    | FULLSTACK TEAM | NODEJS / EXPRESS |
-------------------------------------------------------- */
 // sync():
 import { mongoose } from "../configs/dbConnection";
-import Car from "../models/car";
-import Reservation from "../models/reservation";
-import User from "../models/user";
+import Car from "../models/car.model";
+import Reservation from "../models/reservation.model";
+import User from "../models/user.model";
 import { cars, reservations, users } from "./dummyData";
 
 export default async function sync(): Promise<void> {
