@@ -7,6 +7,10 @@ import Reservation from "../models/reservation.model";
 
 type ListHandler = RequestHandler<{}, DataListResponse<ReservationDocument>>;
 const list: ListHandler = async (req, res) => {
+
+
+
+  
     const data = await res.getModelList(Reservation);
   
     res.status(200).send({

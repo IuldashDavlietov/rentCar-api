@@ -3,6 +3,8 @@ import type { QueryFilter } from "mongoose";
 import type { ICar, CarBody, CarDocument } from "../models/car.model";
 import type { DataListResponse, DataResponse, DeleteResponse, IdParams } from "../types/api";
 import Car from "../models/car.model";
+import Reservation from '../models/reservation.model'
+
 
 // Car Controller:
 
@@ -11,11 +13,27 @@ type ListHandler = RequestHandler<{}, DataListResponse<CarDocument>>;
 const list: ListHandler = async (req, res) => {
   // show only published cars to the customer
   let customFilter: QueryFilter<ICar> = { isPublish: true };
+
   if (req.user?.isAdmin || req.user?.isStaff) {
     customFilter = {};
   }
 
+  const { startDate: QStartDate, endDate: QEndDate } = req.query
+  if (typeof QStartDate === "string" && typeof QEndDate === "string") {
+
+    // find not available cars
+    const reservedCarIds = await Reservation.find({
+      startDate: { $lte: new Date(QEndDate) },
+      endDate: { $gte: new Date(QStartDate) },
+    }, { _id: 0, carId: 1 }).distinct('carId');
+
+    // remove those unavailable cars from car list
+    customFilter._id = {$nin: reservedCarIds}
+  }
+
+
   const data = await res.getModelList(Car, customFilter);
+
   res.status(200).send({
     error: false,
     details: await res.getModelListDetails(Car, customFilter),
@@ -23,8 +41,8 @@ const list: ListHandler = async (req, res) => {
   });
 };
 
-type CreateHandler = RequestHandler<{}, DataResponse<CarDocument>, CarBody>;
 
+type CreateHandler = RequestHandler<{}, DataResponse<CarDocument>, CarBody>;
 const create: CreateHandler = async (req, res) => {
   const currentUserId = req.user?._id;
   req.body.creatorId = currentUserId;
