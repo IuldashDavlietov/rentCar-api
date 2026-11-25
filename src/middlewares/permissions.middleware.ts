@@ -38,10 +38,5 @@ const isAdminOrOwner: RequestHandler = (req, res, next) => {
   next();
 };
 
-const filterPublished: RequestHandler = (req, res, next) => {
-  const isStaffOrAdmin = Boolean(req.user?.isActive && (req.user.isAdmin || req.user.isStaff));
-  res.locals.customFilter = isStaffOrAdmin ? {} : { isPublish: true };
-  next();
-};
 
-export default { isLogin, isStaffOrisAdmin, isAdmin, filterPublished, isAdminOrOwner };
+export default { isLogin, isStaffOrisAdmin, isAdmin, isAdminOrOwner };

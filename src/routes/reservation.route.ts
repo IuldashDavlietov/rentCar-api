@@ -1,11 +1,20 @@
 import { Router } from "express";
-import reservation from '../controllers/reservation.controller'
-
+import permissions from "../middlewares/permissions.middleware";
+import { validateId, validateBody } from "../middlewares/validate.middleware";
+import reservation from "../controllers/reservation.controller";
 
 const router = Router();
 
-// URL : /reservation
-router.route('/').get(reservation.list).post(reservation.create)
-router.route('/:id').get(reservation.read).put(reservation.update).delete(reservation.remove);
+// URL: /reservations
+router
+  .route("/")
+  .get(permissions.isLogin, reservation.list)
+  .post(permissions.isLogin, validateBody, reservation.create);
+
+router
+  .route("/:id")
+  .get(validateId, permissions.isLogin, reservation.read)
+  .put(validateId, permissions.isAdmin, validateBody, reservation.update)
+  .delete(validateId, permissions.isAdmin, reservation.remove);
 
 export default router;

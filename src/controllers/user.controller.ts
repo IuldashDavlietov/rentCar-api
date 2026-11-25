@@ -77,7 +77,6 @@ const update: UpdateHandler = async (req, res) => {
         }
       }
     */
-
   const allowedKeys: (keyof UserBody)[] =
     req.user?.isActive && req.user.isAdmin
       ? ["username", "email", "password", "isActive", "isStaff", "isAdmin"]
@@ -86,12 +85,10 @@ const update: UpdateHandler = async (req, res) => {
   const isAllowed = Object.keys(req.body).every((key) =>
     allowedKeys.includes(key as keyof UserBody),
   );
-
   if (!isAllowed) {
     res.errorStatusCode = 403;
     throw new Error("AuthorizationError: You do not have permission to update these fields.");
   }
-
   if (req.body.password !== undefined) {
     passwordValidation(req.body.password);
   }
@@ -101,7 +98,6 @@ const update: UpdateHandler = async (req, res) => {
     new: true,
     context: "query",
   });
-
   res.status(202).send({
     error: false,
     data,
@@ -114,15 +110,12 @@ const remove: RemoveHandler = async (req, res) => {
         #swagger.tags = ["Users"]
         #swagger.summary = "Delete User"
     */
-
+   
   const data = await User.deleteOne({ _id: req.params.id });
-
   res.status(data.deletedCount ? 204 : 404).send({
     error: !data.deletedCount,
     data,
   });
 };
-
-
 
 export default { list, create, read, update, remove };

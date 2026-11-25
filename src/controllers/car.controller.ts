@@ -3,37 +3,31 @@ import type { QueryFilter } from "mongoose";
 import type { ICar, CarBody, CarDocument } from "../models/car.model";
 import type { DataListResponse, DataResponse, DeleteResponse, IdParams } from "../types/api";
 import Car from "../models/car.model";
-import Reservation from '../models/reservation.model'
-
-
-// Car Controller:
+import Reservation from "../models/reservation.model";
+import dateValidation from "../helpers/dateValidation";
+import CustomError from "../helpers/customError";
 
 type ListHandler = RequestHandler<{}, DataListResponse<CarDocument>>;
-
 const list: ListHandler = async (req, res) => {
-  // show only published cars to the customer
-  let customFilter: QueryFilter<ICar> = { isPublish: true };
+  const isStaffOrAdmin = Boolean(req.user?.isActive && (req.user.isAdmin || req.user.isStaff));
+  const customFilter: QueryFilter<ICar> = isStaffOrAdmin ? {} : { isPublish: true };
 
-  if (req.user?.isAdmin || req.user?.isStaff) {
-    customFilter = {};
-  }
-
-  const { startDate: QStartDate, endDate: QEndDate } = req.query
+  const { startDate: QStartDate, endDate: QEndDate } = req.query;
   if (typeof QStartDate === "string" && typeof QEndDate === "string") {
+    const [start, end] = dateValidation(QStartDate, QEndDate);
 
-    // find not available cars
-    const reservedCarIds = await Reservation.find({
-      startDate: { $lte: new Date(QEndDate) },
-      endDate: { $gte: new Date(QStartDate) },
-    }, { _id: 0, carId: 1 }).distinct('carId');
+    const reservedCarIds = await Reservation.find(
+      {
+        startDate: { $lte: end },
+        endDate: { $gte: start },
+      },
+      { _id: 0, carId: 1 },
+    ).distinct("carId");
 
-    // remove those unavailable cars from car list
-    customFilter._id = {$nin: reservedCarIds}
+    customFilter._id = { $nin: reservedCarIds };
   }
-
 
   const data = await res.getModelList(Car, customFilter);
-
   res.status(200).send({
     error: false,
     details: await res.getModelListDetails(Car, customFilter),
@@ -41,12 +35,12 @@ const list: ListHandler = async (req, res) => {
   });
 };
 
-
 type CreateHandler = RequestHandler<{}, DataResponse<CarDocument>, CarBody>;
 const create: CreateHandler = async (req, res) => {
   const currentUserId = req.user?._id;
   req.body.creatorId = currentUserId;
   req.body.updatorId = currentUserId;
+
   const data = await Car.create(req.body);
 
   res.status(201).send({
@@ -57,7 +51,19 @@ const create: CreateHandler = async (req, res) => {
 
 type ReadHandler = RequestHandler<IdParams, DataResponse<CarDocument | null>>;
 const read: ReadHandler = async (req, res) => {
-  const data = await Car.findById(req.params.id);
+  const isStaffOrAdmin = Boolean(req.user?.isActive && (req.user.isAdmin || req.user.isStaff));
+
+  const data = isStaffOrAdmin
+    ? await Car.findById(req.params.id).populate([
+        { path: "creatorId", select: "username" },
+        { path: "updatorId", select: "username" },
+      ])
+    : await Car.findOne({ _id: req.params.id, isPublish: true });
+
+  if (!data) {
+    throw new CustomError("Car not found.", 404);
+  }
+
   res.status(200).send({
     error: false,
     data,
@@ -66,12 +72,18 @@ const read: ReadHandler = async (req, res) => {
 
 type UpdateHandler = RequestHandler<IdParams, DataResponse<CarDocument | null>, Partial<CarBody>>;
 const update: UpdateHandler = async (req, res) => {
-  req.body.updatorId = req.user?._id;
+  const { creatorId: _ignored, ...updateData } = req.body;
+  updateData.updatorId = req.user?._id;
 
-  const data = await Car.findByIdAndUpdate(req.params.id, req.body, {
+  const data = await Car.findByIdAndUpdate(req.params.id, updateData, {
     runValidators: true,
     returnDocument: "after",
+    context: "query",
   });
+
+  if (!data) {
+    throw new CustomError("Car not found.", 404);
+  }
 
   res.status(202).send({
     error: false,
